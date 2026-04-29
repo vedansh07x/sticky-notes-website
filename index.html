@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Note-Taking App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #noteInput {
+            flex: 1;
+            min-width: 300px;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            font-family: inherit;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        #noteInput:focus {
+            outline: none;
+            border-color: #ffeb3b;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        #addBtn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ffeb3b, #fdd835);
+            color: #333;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        #addBtn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        #notesContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .note {
+            width: 250px;
+            min-height: 150px;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+            border: 3px solid #fdd835;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            word-wrap: break-word;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        .note:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+        }
+
+        .note::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 15px solid #fdd835;
+        }
+
+        .deleteBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .deleteBtn:hover {
+            background: #cc0000;
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #666;
+            font-size: 1.2rem;
+            margin-top: 3rem;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Sticky Notes</h1>
+        
+        <div class="input-section">
+            <textarea id="noteInput" placeholder="Write your note here... (press Add Note to save!)"></textarea>
+            <button id="addBtn">Add Note ➕</button>
+        </div>
+        
+        <div id="notesContainer">
+            <div class="empty-state">No notes yet! Add your first sticky note above. ✨</div>
+        </div>
+    </div>
+
+    <script>
+        const noteInput = document.getElementById('noteInput');
+        const addBtn = document.getElementById('addBtn');
+        const notesContainer = document.getElementById('notesContainer');
+
+        function createNote(text) {
+            const emptyState = notesContainer.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+    
+            const note = document.createElement('div');
+            note.className = 'note';
+            note.innerHTML = `
+                <button class="deleteBtn" onclick="deleteNote(this)">×</button>
+                <div>${text}</div>
+            `;
+
+            notesContainer.appendChild(note);
+        }
+
+        function deleteNote(deleteBtn) {
+            const note = deleteBtn.parentElement;
+            note.style.transform = 'scale(0)';
+            note.style.opacity = '0';
+            setTimeout(() => {
+                note.remove();
+                if (notesContainer.children.length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.className = 'empty-state';
+                    emptyState.textContent = 'No notes yet! Add your first sticky note above. ✨';
+                    notesContainer.appendChild(emptyState);
+                }
+            }, 300);
+        }
+
+        addBtn.addEventListener('click', () => {
+            const text = noteInput.value.trim();
+            if (text) {
+                createNote(text);
+                noteInput.value = ''; // Clear input
+                noteInput.focus();
+            }
+        });
+
+        noteInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.shiftKey) {
+                e.preventDefault();
+                addBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
